@@ -9,8 +9,6 @@
 #define new DEBUG_NEW
 #endif
 
-// CAboutDlg dialog used for App About
-
 class CAboutDlg : public CDialogEx
 {
 public:
@@ -22,7 +20,7 @@ public:
 #endif
 
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	virtual void DoDataExchange(CDataExchange* pDX);
 protected:
 	DECLARE_MESSAGE_MAP()
 };
@@ -38,8 +36,6 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
-
-// CCalculatorDlg dialog
 
 CCalculatorDlg::CCalculatorDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_CALCULATOR_DIALOG, pParent)
@@ -99,16 +95,10 @@ BEGIN_MESSAGE_MAP(CCalculatorDlg, CDialogEx)
 	ON_WM_CTLCOLOR()
 END_MESSAGE_MAP()
 
-
-// CCalculatorDlg message handlers
-
 BOOL CCalculatorDlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
 
-	// Add "About..." menu item to system menu.
-
-	// IDM_ABOUTBOX must be in the system command range.
 	ASSERT((IDM_ABOUTBOX & 0xFFF0) == IDM_ABOUTBOX);
 	ASSERT(IDM_ABOUTBOX < 0xF000);
 
@@ -126,10 +116,9 @@ BOOL CCalculatorDlg::OnInitDialog()
 		}
 	}
 
-	// Set the icon for this dialog.  The framework does this automatically
-	//  when the application's main window is not a dialog
-	SetIcon(m_hIcon, TRUE);			// Set big icon
-	SetIcon(m_hIcon, FALSE);		// Set small icon
+
+	SetIcon(m_hIcon, TRUE);			
+	SetIcon(m_hIcon, FALSE);		
 
 	m_font.CreateFont(32, 0, 0, 0, FW_BOLD, 0, 0, 0, DEFAULT_CHARSET, 
 		0, 0, 0, 0, _T("Microsoft Sans Serif"));
@@ -156,7 +145,7 @@ BOOL CCalculatorDlg::OnInitDialog()
 	GetDlgItem(IDC_STATIC)->SetFont(&m_historyFont);
 	reset();
 
-	return TRUE;  // return TRUE  unless you set the focus to a control 
+	return TRUE;  
 }
 
 void CCalculatorDlg::OnSysCommand(UINT nID, LPARAM lParam)
@@ -172,18 +161,14 @@ void CCalculatorDlg::OnSysCommand(UINT nID, LPARAM lParam)
 	}
 }
 
-// If you add a minimize button to your dialog, you will need the code below
-//  to draw the icon.  For MFC applications using the document/view model,
-//  this is automatically done for you by the framework.
 void CCalculatorDlg::OnPaint()
 {
 	if (IsIconic())
 	{
-		CPaintDC dc(this); // device context for painting
+		CPaintDC dc(this); 
 
 		SendMessage(WM_ICONERASEBKGND, reinterpret_cast<WPARAM>(dc.GetSafeHdc()), 0);
 
-		// Center icon in client rectangle
 		int cxIcon = GetSystemMetrics(SM_CXICON);
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
@@ -191,7 +176,6 @@ void CCalculatorDlg::OnPaint()
 		int x = (rect.Width() - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
-		// Draw the icon
 		dc.DrawIcon(x, y, m_hIcon);
 	}
 	else
@@ -200,8 +184,6 @@ void CCalculatorDlg::OnPaint()
 	}
 }
 
-// The system calls this function to obtain the cursor to display while the user drags
-//  the minimized window.
 HCURSOR CCalculatorDlg::OnQueryDragIcon()
 {
 	return static_cast<HCURSOR>(m_hIcon);
@@ -228,25 +210,23 @@ void CCalculatorDlg::addDigit(char digit)
 		return;
 
 	UpdateData();
-	// After an operation the next digit will always be the first digit of the next number.
-	// This check can only be done for the first digit, so if we are entering digits
-	// after first digit this check is ignored (m_firstDigitEntered==TRUE).
+
 	if (m_calculator.isOperation(m_calculator.getLastInput().actionType)  &&
 		!m_firstDigitEntered)
 	{
-		// (3 + 4 x 6 = input: 2 => 2)
+
 		m_output = digit;
 	}
 	else
 	{
 		if (m_output == m_outputResetString && digit == '0')
-			return; // (0 : input: 0 => 0) if zero is the first digit typed, ignore it
+			return; 
 		else if (m_output == m_outputResetString)
-			m_output = digit; // (0 : input: 6 => 6) first digit
+			m_output = digit; 
 		else
-			m_output += digit; // (45 : input: 9 => 459)
+			m_output += digit;
 	}
-	// a valid digit was added
+
 	m_firstDigitEntered = TRUE;
 	UpdateData(FALSE);
 }
@@ -344,8 +324,6 @@ void CCalculatorDlg::createHistoryText()
 	}
 }
 
-// if handleNumber == true then first handles the number entered in the output
-// window before doing the operation.
 void CCalculatorDlg::doOperation(Calculator::ActionType operation, bool handleNumber)
 {
 	if (m_errorInput)
@@ -355,30 +333,22 @@ void CCalculatorDlg::doOperation(Calculator::ActionType operation, bool handleNu
 	Calculator::Action input;
 	if (handleNumber)
 	{
-		// first add the last entered number
 		input.actionType = Calculator::ActionType::Number;
 		input.value = _wtof(m_output);
 		m_calculator.addInput(input);
 	}
-	// then add the (last) operation
+
 	input.actionType = operation;
 	m_errorInput = false;
 	try
 	{
-		// After a (valid) operation we always print a current result if
-		// there is something to print currently. This is the case with all the current 
-		// operations. Later on if there is different kind of operation which does not
-		// behave like this, then a new code is needed here for that operation.
+
 		if (m_calculator.addInput(input))
 		{
-			// The only situation we will not print the total result here is if both term and 
-			// expression have values currently (are "in use"). For example: "3 + 5 /", 
-			// => operation == Divide and we would not like to print the total result of
-			// this yet becouse that would be 3; we want to wait until the term part (5 / ...)
-			// is finished, then we will print the total 3 + ... .
+
 			if (!m_calculator.hasLeftTermValue() || !m_calculator.hasLeftExpressionValue())
 			{
-				// print the current total value
+		
 				std::stringstream ss;
 				ss << m_calculator.getCurrentResult();
 				std::string curResult = ss.str();
@@ -388,18 +358,17 @@ void CCalculatorDlg::doOperation(Calculator::ActionType operation, bool handleNu
 				UpdateData(FALSE);
 			}
 		}
-		else // this should never happen; coming here means possible an error in the code
+		else 
 			AfxMessageBox(_T("Error: An unknown operation.")); 
 	}
 	catch (std::exception& e)
 	{
-		// note: the user can only continue after "divided by zero" error
-		// by pressing "C"/reset.
+
 		m_output = e.what();
 		m_firstDigitEntered = FALSE;
 		m_errorInput = true;
 	}
-	// update output
+
 	createHistoryText();
 	if (operation == Calculator::ActionType::Equals)
 	{
@@ -445,7 +414,7 @@ HBRUSH CCalculatorDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
 
-	// TODO:  Change any attributes of the DC here
+
 	switch (nCtlColor) {
 	case CTLCOLOR_EDIT:
 		if (pWnd->GetDlgCtrlID() == IDC_EDIT_HISTORY)
@@ -455,7 +424,7 @@ HBRUSH CCalculatorDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 			return (HBRUSH)(m_historyBkBrush->GetSafeHandle());
 		}
 	}
-	// TODO:  Return a different brush if the default is not desired
+
 	return hbr;
 }
 

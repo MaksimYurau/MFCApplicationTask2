@@ -6,7 +6,7 @@
 class CCalculatorDlg : public CDialogEx
 {
 public:
-	CCalculatorDlg(CWnd* pParent = NULL);	// standard constructor
+	CCalculatorDlg(CWnd* pParent = NULL);	
 
 // Dialog Data
 #ifdef AFX_DESIGN_TIME
@@ -14,11 +14,11 @@ public:
 #endif
 
 	protected:
-	virtual void DoDataExchange(CDataExchange* pDX);	// DDX/DDV support
+	virtual void DoDataExchange(CDataExchange* pDX);	
 protected:
 	HICON m_hIcon;
 
-	// Generated message map functions
+
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
